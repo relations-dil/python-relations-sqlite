@@ -17,7 +17,7 @@ All notable changes to python-relations-sqlite are recorded here, newest first. 
 ## [0.6.4] - 2026-10-14
 
 ### Changed
-- `TABLE.PRIMARY` is `PRIMARY KEY (%s)`, so an id that isn't `auto` (a string id from relations-dil 0.6.18) gets a table-level primary key. An `auto` id still gets none, its column is `INTEGER PRIMARY KEY`.
+- `TABLE.PRIMARY` is `PRIMARY KEY (%s)`, so an id that isn't `auto` (a string id from relations-dil 0.6.18) gets a table-level primary key. `PRIMARY_AUTO` is `False`, so an `auto` id still gets none, its column is `INTEGER PRIMARY KEY`.
 - `TABLE.modify` carries the `id` into the rebuilt table, so a string id keeps its primary key when the table is rebuilt for another change.
 - A rebuilt table for an int id that isn't `auto` now gets a table-level primary key as well.
 

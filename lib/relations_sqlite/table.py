@@ -23,6 +23,7 @@ class TABLE(relations_sqlite.DDL, relations_sql.TABLE):
     INDEXES = False
 
     PRIMARY = "PRIMARY KEY (%s)"
+    PRIMARY_AUTO = False # the auto column is INTEGER PRIMARY KEY, already the key
 
     def name(self, state="migration", prefix='', rename=False):
         """
