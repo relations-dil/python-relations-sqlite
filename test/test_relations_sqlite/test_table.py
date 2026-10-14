@@ -63,8 +63,6 @@ CREATE INDEX `meta_spend` ON `meta` (`spend`);
 CREATE UNIQUE INDEX `meta_name` ON `meta` (`name`);
 """)
 
-    def test_create_string_id(self):
-
         ddl = TABLE(**Slug.thy().define())
         ddl.args = []
 
@@ -74,46 +72,6 @@ CREATE UNIQUE INDEX `meta_name` ON `meta` (`name`);
   `name` TEXT,
   PRIMARY KEY (`id`)
 );
-""")
-
-    def test_modify_string_id(self):
-
-        ddl = TABLE(
-            migration={
-                "fields": {
-                    "change": {
-                        "name": {
-                            "none": False
-                        }
-                    }
-                }
-            },
-            definition=Slug.thy().define()
-        )
-
-        ddl.generate(indent=2)
-        self.assertEqual(ddl.sql, """ALTER TABLE `slug` RENAME TO `_old_slug`;
-
-CREATE TABLE IF NOT EXISTS `slug` (
-  `id` TEXT NOT NULL,
-  `name` TEXT NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-INSERT
-INTO
-  `slug`
-  (
-    `id`,
-    `name`
-  )
-SELECT
-  `id` AS `id`,
-  `name` AS `name`
-FROM
-  `_old_slug`;
-
-DROP TABLE `_old_slug`;
 """)
 
     def test_modify(self):
@@ -564,6 +522,44 @@ DROP TABLE `_old_yep`;
 """)
 
         self.assertEqual(ddl.args, [])
+
+        ddl = TABLE(
+            migration={
+                "fields": {
+                    "change": {
+                        "name": {
+                            "none": False
+                        }
+                    }
+                }
+            },
+            definition=Slug.thy().define()
+        )
+
+        ddl.generate(indent=2)
+        self.assertEqual(ddl.sql, """ALTER TABLE `slug` RENAME TO `_old_slug`;
+
+CREATE TABLE IF NOT EXISTS `slug` (
+  `id` TEXT NOT NULL,
+  `name` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT
+INTO
+  `slug`
+  (
+    `id`,
+    `name`
+  )
+SELECT
+  `id` AS `id`,
+  `name` AS `name`
+FROM
+  `_old_slug`;
+
+DROP TABLE `_old_slug`;
+""")
 
     def test_drop(self):
 
