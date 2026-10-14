@@ -9,6 +9,10 @@ class Simple(relations.Model):
     id = int
     name = str
 
+class Slug(relations.Model):
+    id = str
+    name = str
+
 class Meta(relations.Model):
     id = int, {"auto": True}
     name = str
@@ -57,6 +61,17 @@ class TestTABLE(unittest.TestCase):
 CREATE INDEX `meta_spend` ON `meta` (`spend`);
 
 CREATE UNIQUE INDEX `meta_name` ON `meta` (`name`);
+""")
+
+        ddl = TABLE(**Slug.thy().define())
+        ddl.args = []
+
+        ddl.create(indent=2)
+        self.assertEqual(ddl.sql, """CREATE TABLE IF NOT EXISTS `slug` (
+  `id` TEXT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+);
 """)
 
     def test_modify(self):
@@ -142,7 +157,8 @@ CREATE TABLE IF NOT EXISTS `simple` (
   `id` INTEGER,
   `name` TEXT NOT NULL,
   `things` TEXT NOT NULL,
-  `things__for__0____1` TEXT AS (json_extract(`things`,'$.for[0]."1"'))
+  `things__for__0____1` TEXT AS (json_extract(`things`,'$.for[0]."1"')),
+  PRIMARY KEY (`id`)
 );
 
 CREATE UNIQUE INDEX `simple_name` ON `simple` (`name`);
@@ -506,6 +522,44 @@ DROP TABLE `_old_yep`;
 """)
 
         self.assertEqual(ddl.args, [])
+
+        ddl = TABLE(
+            migration={
+                "fields": {
+                    "change": {
+                        "name": {
+                            "none": False
+                        }
+                    }
+                }
+            },
+            definition=Slug.thy().define()
+        )
+
+        ddl.generate(indent=2)
+        self.assertEqual(ddl.sql, """ALTER TABLE `slug` RENAME TO `_old_slug`;
+
+CREATE TABLE IF NOT EXISTS `slug` (
+  `id` TEXT NOT NULL,
+  `name` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT
+INTO
+  `slug`
+  (
+    `id`,
+    `name`
+  )
+SELECT
+  `id` AS `id`,
+  `name` AS `name`
+FROM
+  `_old_slug`;
+
+DROP TABLE `_old_slug`;
+""")
 
     def test_drop(self):
 
