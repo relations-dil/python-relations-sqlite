@@ -14,6 +14,13 @@ All notable changes to python-relations-sqlite are recorded here, newest first. 
 - Every `docker run` in the `Makefile` uses `--rm`, and a replaced database container is removed with its volume (`docker rm --force -v`), so builds and test runs leave no stopped containers or volumes behind.
 - `testpypi` and `pypi` run in the current `python` image with `build` and `twine` installed on the fly, so the custom `gaf3/pypi` image is no longer used.
 
+## [0.6.4] - 2026-10-14
+
+### Changed
+- `TABLE.PRIMARY` is `PRIMARY KEY (%s)`, so an id that isn't `auto` (a string id from relations-dil 0.6.18) gets a table-level primary key. An `auto` id still gets none, its column is `INTEGER PRIMARY KEY`.
+- `TABLE.modify` carries the `id` into the rebuilt table, so a string id keeps its primary key when the table is rebuilt for another change.
+- A rebuilt table for an int id that isn't `auto` now gets a table-level primary key as well.
+
 ## [0.6.3] - 2026-06-06
 
 - Table migrations now skip fields with no store (a false `store`) when copying columns to the new table.

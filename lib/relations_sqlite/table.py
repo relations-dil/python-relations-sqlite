@@ -22,6 +22,8 @@ class TABLE(relations_sqlite.DDL, relations_sql.TABLE):
 
     INDEXES = False
 
+    PRIMARY = "PRIMARY KEY (%s)"
+
     def name(self, state="migration", prefix='', rename=False):
         """
         Generate a quoted name, with table as the default
@@ -75,7 +77,7 @@ class TABLE(relations_sqlite.DDL, relations_sql.TABLE):
             "unique": {},
         }
 
-        for attr in ["name", "store", "schema"]:
+        for attr in ["id", "name", "store", "schema"]:
             value = self.migration.get(attr, self.definition.get(attr))
             if value is not None:
                 migration[attr] = value
