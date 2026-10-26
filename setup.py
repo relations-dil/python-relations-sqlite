@@ -30,7 +30,7 @@ setup(
         'relations_sqlite.table'
     ],
     install_requires=[
-        'relations-sql>=0.6.10'
+        'relations-sql>=0.6.11'
     ],
     url="https://github.com/relations-dil/python-relations-sqlite",
     author="Gaffer Fitch",

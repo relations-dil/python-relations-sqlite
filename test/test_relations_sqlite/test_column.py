@@ -105,3 +105,40 @@ class TestCOLUMN(unittest.TestCase):
         ddl.generate()
         self.assertEqual(ddl.sql, """ADD `data__a__0___1____2_____3` TEXT AS (json_extract(`data`,'$.a[0][-1]."2"."-3"'))""")
         self.assertEqual(ddl.args, [])
+
+        # a string with a length can't be longer, as SQLite doesn't enforce the length of a type
+
+        field = relations.Field(str, "name", store="_name", default="Willy", none=False, length=64)
+        ddl = COLUMN(field.define())
+
+        ddl.generate()
+        self.assertEqual(ddl.sql, """`_name` TEXT NOT NULL DEFAULT 'Willy' CHECK (length(`_name`) <= 64)""")
+        self.assertEqual(ddl.args, [])
+
+        ddl = COLUMN(field.define(), added=True)
+
+        ddl.generate()
+        self.assertEqual(ddl.sql, """ADD `_name` TEXT NOT NULL DEFAULT 'Willy' CHECK (length(`_name`) <= 64)""")
+        self.assertEqual(ddl.args, [])
+
+        # no length, no check, and neither for an extracted column or an auto one
+
+        field = relations.Field(str, name="name", store="_name", none=False)
+        ddl = COLUMN(field.define())
+
+        ddl.generate()
+        self.assertEqual(ddl.sql, """`_name` TEXT NOT NULL""")
+        self.assertEqual(ddl.args, [])
+
+        ddl = COLUMN(store="data__a", kind="str", length=64)
+
+        ddl.generate()
+        self.assertEqual(ddl.sql, """`data__a` TEXT AS (json_extract(`data`,'$.a'))""")
+        self.assertEqual(ddl.args, [])
+
+        field = relations.Field(str, name="id", auto=True, length=64)
+        ddl = COLUMN(field.define())
+
+        ddl.generate()
+        self.assertEqual(ddl.sql, """`id` INTEGER PRIMARY KEY""")
+        self.assertEqual(ddl.args, [])
