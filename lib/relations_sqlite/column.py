@@ -31,3 +31,15 @@ class COLUMN(relations_sqlite.DDL, relations_sql.COLUMN):
 
         if self.migration and self.migration.get("kind") == "bool" and "default" in self.migration:
             self.migration["default"] = int(self.migration["default"])
+
+    def create(self, **kwargs):
+        """
+        CREATE DLL, a string with a length can't be longer than it, as SQLite doesn't enforce the length of a type
+        """
+
+        super().create(**kwargs)
+
+        migration = self.migration
+
+        if migration.get("kind") == "str" and migration.get("length") and not migration.get("auto") and "__" not in migration["store"]:
+            self.sql = f"{self.sql} CHECK (length({self.name()}) <= {migration['length']})"
